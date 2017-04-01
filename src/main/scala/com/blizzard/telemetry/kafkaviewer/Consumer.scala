@@ -9,6 +9,7 @@ class Consumer(topics: List[String]) {
 	val config = new Properties();
 	config.put("bootstrap.servers", "localhost:9092");
 	config.put("group.id", "test");
+	config.put("auto.offset.reset", "earliest")
 	config.put("enable.auto.commit", "true");
 	config.put("auto.commit.interval.ms", "1000");
 	config.put("session.timeout.ms", "30000");

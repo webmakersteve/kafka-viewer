@@ -1,11 +1,8 @@
-package com.blizzard.telemetry.kafkaviewer;
+package com.blizzard.telemetry.kafkaviewer
 
-import java.io.File;
-import java.io.IOException;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
-import javax.swing.{JFrame,JLabel,ImageIcon}
-import java.awt.BorderLayout
+import java.awt.image.BufferedImage
+import javax.swing.{ImageIcon, JFrame, JLabel}
+import java.awt.{BorderLayout, Dimension}
 
 object Application {
 	def main(args: Array[String]) : Unit = {
@@ -14,9 +11,11 @@ object Application {
 		val consumer = new Consumer(List("test"))
 
 		consumer.consume((bytes: Array[Byte]) => {
+			val side = Math.floor(Math.sqrt(bytes.length)).asInstanceOf[Int]
+
 			//image dimension
-			val width = 640;
-			val height = 320;
+			val width = side
+			val height = side
 			//create buffered image object img
 			val img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 
@@ -30,22 +29,27 @@ object Application {
 						if (counter >= totalBytes) {
 							0
 						} else {
-							val byteAtIndex = bytes(counter)
+							var byteAtIndex = bytes(counter).toInt
+              if (byteAtIndex < 0) {
+                byteAtIndex = 128 + Math.abs(byteAtIndex)
+              }
 							counter+=1
-							return byteAtIndex.toInt
+							return byteAtIndex
 						}
 					}
 
-			  	// some code goes here...
-					val a : Int = getNextByte // Alpha
-					val r : Int = getNextByte //red
-					val g : Int = getNextByte //green
-					val b : Int = getNextByte //blue
+					//val a : Int = getNextByte // Alpha
+					//val r : Int = getNextByte //red
+					//val g : Int = getNextByte //green
+					//val b : Int = getNextByte //blue
 
-					val p : Int = (a<<24) | (r<<16) | (g<<8) | b;
-					img.setRGB(x, y, p);
+					//val p : Int = (a<<24) | (r<<16) | (g<<8) | b;
+          val pixel = 255 << 24 | getNextByte << 16
+					img.setRGB(x, y, pixel)
 			  }
 			}
+
+      System.out.println(s"Painting ${bytes.length} bytes...")
 
 			paintWindow(frame, img)
 		})
@@ -54,10 +58,15 @@ object Application {
 
 	def paintWindow(frame : JFrame, image: BufferedImage) : Unit = {
 		//3. Create components and put them in the frame.
-		//...create emptyLabel...
-		frame.getContentPane().add(new JLabel(new ImageIcon(image)), BorderLayout.CENTER);
 
-		frame.pack();
+    val scaledImage = image.getScaledInstance(100, 100, 0)
+    val imageIcon = new ImageIcon(scaledImage)
+    val label = new JLabel(imageIcon)
+
+
+		frame.getContentPane().add(label, BorderLayout.CENTER)
+
+		frame.pack()
 	}
 
 	def openWindow : JFrame = {
@@ -65,13 +74,14 @@ object Application {
 		val frame = new JFrame("FrameDemo");
 
 		//2. Optional: What happens when the frame closes?
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
 
 		//4. Size the frame.
-		frame.pack();
+    frame.setMinimumSize(new Dimension(100, 100))
+    frame.pack()
 
 		//5. Show it.
-		frame.setVisible(true);
+		frame.setVisible(true)
 
 		return frame
 	}
