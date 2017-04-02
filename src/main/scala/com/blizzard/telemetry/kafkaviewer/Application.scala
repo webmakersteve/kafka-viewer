@@ -63,10 +63,10 @@ object Application {
     val imageIcon = new ImageIcon(scaledImage)
     val label = new JLabel(imageIcon)
 
-
+		frame.getContentPane().removeAll()
 		frame.getContentPane().add(label, BorderLayout.CENTER)
-
 		frame.pack()
+		frame.getContentPane().repaint()
 	}
 
 	def openWindow : JFrame = {
