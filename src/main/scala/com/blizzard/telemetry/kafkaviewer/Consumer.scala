@@ -22,7 +22,7 @@ class Consumer(topics: List[String]) {
 
   private val isRunning: AtomicBoolean = new AtomicBoolean(true)
 
-  def poll(callback: (Array[Byte]) => Unit) : Unit = {
+  def poll(callback: (Array[Byte]) => Unit): Unit = {
     while (isRunning.get()) {
       val records = consumer.poll(100)
       for (record <- records.asScala) {
@@ -35,7 +35,7 @@ class Consumer(topics: List[String]) {
 
   def close(): Unit = {
     if (isRunning.compareAndSet(true, false)) {
-			consumer.wakeup()
+      consumer.wakeup()
     }
   }
 
